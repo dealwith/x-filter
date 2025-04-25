@@ -1,20 +1,20 @@
-import React from "react"
-import { createRoot } from "react-dom/client"
-import "./popup.css"
+import React from "react";
+import { createRoot } from "react-dom/client";
 
 const Popup = () => {
-  
   return (
     <>
-      <div id="popup-window"/>
+      <div style={{ minWidth: "500px", minHeight: "700px" }}>
+        {/* content */}
+      </div>
     </>
-  )
-}
+  );
+};
 
-const root = createRoot(document.getElementById("root")!)
+const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <React.StrictMode>
     <Popup />
   </React.StrictMode>
-)
+);

@@ -18,14 +18,10 @@
         "<all_urls>"
       ],
       "js": [
-        "js/vendor.js",
-        "js/content_script.js"
+        "js/vendor.js"
       ]
     }
   ],
-  "background": {
-    "service_worker": "js/background.js"
-  },
   "permissions": [
     "storage"
   ],
