@@ -1,12 +1,11 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import "./popup.scss"
 
 const Popup = () => {
   return (
     <>
-      <div style={{ minWidth: "500px", minHeight: "700px" }}>
-        {/* content */}
-      </div>
+      <div id="popup-window"/>
     </>
   );
 };
