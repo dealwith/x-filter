@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chibat/chrome-extension-typescript-starter.git"
+    "url": "https://github.com/dealwith/x-filter.git"
   },
   "dependencies": {
     "@types/chrome": "^0.0.240",
