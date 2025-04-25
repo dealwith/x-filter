@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-typescript-starter",
+  "name": "x-filter",
   "version": "1.0.0",
-  "description": "chrome-extension-typescript-starter",
+  "description": "X Filter is filtering tool for Chrome that allows you to filter out unwanted content on x.com",
   "main": "index.js",
   "scripts": {
     "watch": "webpack --config webpack/webpack.dev.js --watch",
