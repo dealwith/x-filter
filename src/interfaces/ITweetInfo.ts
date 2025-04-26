@@ -1,4 +1,4 @@
-export interface TweetInfo {
+export interface ITweetInfo {
   id: string;
   author: string;
   handle: string;

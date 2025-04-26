@@ -1,13 +1,13 @@
-import { TweetInfo } from "./interfaces/ITweetInfo";
+import { ITweetInfo } from "../interfaces/ITweetInfo";
 
 const processedTweetIds = new Set<string>();
 
-let latestTweetInfo: TweetInfo | null = null;
+let latestTweetInfo: ITweetInfo | null = null;
 
 /**
  * Extract information from the first tweet on the page
  */
-const extractFirstTweet = (): TweetInfo | null => {
+const extractFirstTweet = (): ITweetInfo | null => {
   const articles = document.querySelectorAll('article[data-testid="tweet"]');
 
   if (articles.length === 0) {
@@ -71,13 +71,13 @@ const extractFirstTweet = (): TweetInfo | null => {
 /**
  * Log tweet information to console
  */
-const logTweetInfo = (tweetInfo: TweetInfo) => {
+const logTweetInfo = (ITweetInfo: ITweetInfo) => {
   console.log('======= X-FILTER: FIRST TWEET =======');
-  console.log(`ID: ${tweetInfo.id}`);
-  console.log(`Author: ${tweetInfo.author} (${tweetInfo.handle})`);
-  console.log(`Posted: ${tweetInfo.timestamp}`);
-  console.log(`Content: ${tweetInfo.content}`);
-  console.log(`Likes: ${tweetInfo.likes}, Retweets: ${tweetInfo.retweets}`);
+  console.log(`ID: ${ITweetInfo.id}`);
+  console.log(`Author: ${ITweetInfo.author} (${ITweetInfo.handle})`);
+  console.log(`Posted: ${ITweetInfo.timestamp}`);
+  console.log(`Content: ${ITweetInfo.content}`);
+  console.log(`Likes: ${ITweetInfo.likes}, Retweets: ${ITweetInfo.retweets}`);
   console.log('====================================');
 };
 
@@ -85,11 +85,11 @@ const logTweetInfo = (tweetInfo: TweetInfo) => {
  * Main function to process the first tweet
  */
 const processFirstTweet = () => {
-  const tweetInfo = extractFirstTweet();
+  const ITweetInfo = extractFirstTweet();
 
-  if (tweetInfo) {
-    logTweetInfo(tweetInfo);
-    latestTweetInfo = tweetInfo; // Save for later retrieval
+  if (ITweetInfo) {
+    logTweetInfo(ITweetInfo);
+    latestTweetInfo = ITweetInfo; // Save for later retrieval
   }
 };
 
@@ -139,7 +139,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     // Send back whatever we have
-    sendResponse({ tweetInfo: latestTweetInfo });
+    sendResponse({ ITweetInfo: latestTweetInfo });
   }
   return true; // Keep the message channel open for asynchronous response
 });
