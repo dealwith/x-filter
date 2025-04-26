@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
@@ -6,6 +6,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { IFilterSettings } from "../interfaces/IFilterSettings";
 import { filterSettings as defaultPreferences } from "../functions/content";
+import { loadFilterSettings } from "../functions/filter";
 
 const UserSelections = () => {
   const [userPreferences, setPreferences] = useState<IFilterSettings>(
@@ -17,10 +18,17 @@ const UserSelections = () => {
       ...userPreferences,
       [key]: !userPreferences[key],
     };
-    setPreferences(updatedPreferences);
 
     chrome.storage.sync.set({ filterSettings: updatedPreferences });
+
+    setPreferences(updatedPreferences);
   };
+
+  useEffect(() => {
+    loadFilterSettings().then((result) => {
+      setPreferences(result);
+    });
+  }, []);
 
   return (
     <>

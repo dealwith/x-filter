@@ -74,131 +74,69 @@ const processAllPosts = () => {
     return;
   }
 
-  console.log(`X-Filter: Found ${articles.length} posts on the page`);
-
-  let newPostsFound = 0;
-
   articles.forEach((article) => {
     if (article instanceof HTMLElement) {
       const postInfo = extractPostInfo(article);
 
       if (postInfo) {
-        newPostsFound++;
         allPosts.push(postInfo);
-
-        // Apply filter to each post as it's processed
-        applyFilter(postInfo);
-
-        // Only log the first few posts to avoid console spam
-        if (allPosts.length <= 3) {
-          logPostInfo(postInfo);
-        }
+        logPostInfo(postInfo);
       }
     }
   });
 
-  if (newPostsFound > 0) {
-    console.log(`X-Filter: Processed ${newPostsFound} new posts`);
-
-    chrome.runtime.sendMessage({
-      action: "updatePosts",
-      stats: {
-        totalProcessed: processedPostIds.size,
-        totalFiltered: allPosts.filter((t) => t.filtered).length,
-      },
-    });
-  } else {
-    console.log("X-Filter: No new posts found");
-  }
+  chrome.runtime.sendMessage({
+    action: "updatePosts",
+    stats: {
+      totalProcessed: processedPostIds.size,
+      totalFiltered: allPosts.filter((t) => t.filtered).length,
+    },
+  });
 };
 
-// Don't stop observing after finding the first posts
-const observeTimeline = () => {
-  const observer = new MutationObserver((mutations) => {
-    let shouldProcess = false;
+const waitForPosts = () => {
+  setInterval(async () => {
+    filterSettings = await loadFilterSettings();
 
-    for (const mutation of mutations) {
-      if (
-        mutation.addedNodes.length > 0 ||
-        (mutation.target && mutation.type === "childList")
-      ) {
-        shouldProcess = true;
-        break;
-      }
-    }
-
-    if (shouldProcess) {
-      // Add a small delay to let the DOM fully update
-      setTimeout(processAllPosts, 100);
-    }
-  });
-
-  const setupObserver = () => {
-    // Try to observe the timeline element and its children
-    const timeline =
-      document.querySelector('[data-testid="primaryColumn"]') ||
-      document.querySelector("main");
-
-    if (timeline) {
-      observer.observe(timeline, {
-        childList: true,
-        subtree: true,
-      });
-      console.log("X-Filter: Successfully attached observer to timeline");
-
-      // Process posts immediately after attaching observer
+    if (filterSettings.enabled) {
       processAllPosts();
-
-      // Also process on scroll events to catch dynamically loaded content
-      window.addEventListener("scroll", () => {
-        // Use debouncing to avoid excessive processing
-        clearTimeout(window.scrollTimer);
-        window.scrollTimer = setTimeout(() => {
-          processAllPosts();
-        }, 300);
-      });
-    } else {
-      console.log("X-Filter: Timeline not found, retrying...");
-      setTimeout(setupObserver, 500);
     }
-  };
-
-  setupObserver();
+  }, 1000);
 };
 
 const init = async () => {
-  console.log("X-Filter: Initializing...");
+  waitForPosts();
 
-  try {
-    filterSettings = await loadFilterSettings();
-    console.log("X-Filter: Settings loaded", filterSettings);
+  const observer = new MutationObserver((mutations) => {
+    let shouldProcess = false;
 
-    // Start observing the timeline for new posts
-    observeTimeline();
-
-    // Handle settings changes
-    chrome.storage.onChanged.addListener((changes) => {
-      if (changes.filterSettings) {
-        console.log(
-          "X-Filter: Settings updated",
-          changes.filterSettings.newValue,
-        );
-        filterSettings = changes.filterSettings.newValue;
-
-        // Re-process all posts with new settings
-        allPosts.forEach((post) => {
-          // Reset post appearance first
-          post.element.style.display = "";
-          post.filtered = false;
-
-          // Apply filter again
-          applyFilter(post);
-        });
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length > 0) {
+        shouldProcess = true;
       }
     });
-  } catch (error) {
-    console.error("X-Filter: Initialization error", error);
+
+    if (shouldProcess) {
+      processAllPosts();
+    }
+  });
+
+  const timeline = document.querySelector("main");
+
+  if (timeline) {
+    observer.observe(timeline, {
+      childList: true,
+      subtree: true,
+    });
+
+    console.log("X-Filter: Observing timeline for new tweets");
   }
+
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.filterSettings) {
+      filterSettings = changes.filterSettings.newValue;
+    }
+  });
 };
 
 try {
@@ -225,8 +163,14 @@ try {
       filterSettings = message.settings;
 
       allPosts.forEach((tweet) => {
-        tweet.element.style.display = "";
-        tweet.filtered = false;
+        tweet.element.style.opacity = "1";
+
+        const existingBadge = tweet.element.querySelector(
+          'div:contains("Filtered by X-Filter")',
+        );
+        if (existingBadge) {
+          existingBadge.remove();
+        }
 
         applyFilter(tweet);
       });
@@ -236,8 +180,8 @@ try {
 
     return true;
   });
-} catch (error) {
-  console.error("X-Filter: No chrome runtime environment running", error);
+} catch {
+  console.error("No chrome runtime environment running");
 }
 
 init();
