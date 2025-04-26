@@ -5,7 +5,7 @@ const srcDir = path.join(__dirname, "..", "src");
 module.exports = {
     entry: {
       popup: path.join(srcDir, 'popup.tsx'),
-      content: path.join(srcDir, 'content.ts')
+      content: path.join(srcDir, 'content.ts'),
     },
     output: {
         path: path.join(__dirname, "../dist/js"),
@@ -22,9 +22,9 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
-                use: "ts-loader",
-                exclude: /node_modules/,
+              test: /\.tsx?$/,
+              use: "ts-loader",
+              exclude: /node_modules/,
             },
             {
                 test: /\.css$/i,
@@ -34,7 +34,7 @@ module.exports = {
                 test: /\.scss$/i,
                 use: ["style-loader", "css-loader", "sass-loader"],
             },
-        ],       
+        ],
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"],
