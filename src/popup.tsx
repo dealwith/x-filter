@@ -18,7 +18,6 @@ const Popup = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Query the active tab to get the content script to send us the first tweet
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
 
@@ -28,7 +27,6 @@ const Popup = () => {
         return;
       }
 
-      // Check if we're on a valid domain
       const url = activeTab.url || "";
       if (!url.includes("twitter.com") && !url.includes("x.com")) {
         setError("Please navigate to X.com or Twitter.com to use this extension");
@@ -36,7 +34,6 @@ const Popup = () => {
         return;
       }
 
-      // Send a message to the content script to get the first tweet
       chrome.tabs.sendMessage(
         activeTab.id,
         { action: "getFirstTweet" },
