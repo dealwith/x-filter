@@ -10,13 +10,11 @@ const UserSelections = () => {
     <>
       <Navbar bg="dark text-white" expand="lg">
         <Container>
-          <Navbar.Brand className="text-white" href="#">X Filter</Navbar.Brand>
+          <Navbar.Brand className="text-white" href="#">
+            X Filter
+          </Navbar.Brand>
           <Form className="ms-auto">
-            <Form.Check
-              type="switch"
-              id="navbar-switch"
-              label="On / Off"
-            />
+            <Form.Check type="switch" id="navbar-switch" label="On / Off" />
           </Form>
         </Container>
       </Navbar>
@@ -25,15 +23,11 @@ const UserSelections = () => {
         <Row>
           <Col xs="auto">
             <Form>
-              <Form.Check
-                type="switch"
-                id="body-switch-1"
-                label="Ads"
-              />
+              <Form.Check type="switch" id="body-switch-1" label="Political" />
               <Form.Check
                 type="switch"
                 id="body-switch-2"
-                label="Something Else"
+                label="Advertisements"
               />
             </Form>
           </Col>
