@@ -3,6 +3,11 @@ name: Deploy to Server
 on:
   # Only manual trigger
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Docker Image Tag'
+        required: true
+        default: 'master'
 
 jobs:
   deploy:
@@ -20,6 +25,7 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_HOST }} '
             cd ${{ secrets.DEPLOY_PATH }} && 
+            export TAG=${{ github.event.inputs.tag }} && 
             docker-compose pull && 
             docker-compose up -d
           '

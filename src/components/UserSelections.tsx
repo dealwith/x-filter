@@ -71,6 +71,14 @@ const UserSelections = () => {
                 onChange={() => handleToggle("ads")}
                 disabled={!userPreferences.enabled}
               />
+              <Form.Check
+                type="switch"
+                id="body-switch-3"
+                label="Elon Musk"
+                checked={userPreferences.elonmusk}
+                onChange={() => handleToggle("elonmusk")}
+                disabled={!userPreferences.enabled}
+              />
             </Form>
           </Col>
         </Row>

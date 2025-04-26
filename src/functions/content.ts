@@ -12,6 +12,7 @@ export let filterSettings: IFilterSettings = {
   likes: [0, 100],
   ads: true,
   political: true,
+  elonmusk: true,
 };
 
 const extractPostInfo = (article: HTMLElement): IPostInfo | null => {
