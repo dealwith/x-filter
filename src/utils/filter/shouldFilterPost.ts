@@ -17,26 +17,40 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
 
   // Use the background script for API calls
   try {
-    const response = await new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
-        {
-          action: "analyzePost",
-          tweets: [
-            {
-              id: post.id,
-              text: post.content,
-            },
-          ],
-        },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(response);
-          }
-        },
-      );
-    });
+    interface AnalyzePostResponse {
+      success: boolean;
+      data?: {
+        tweets: {
+          [id: string]: {
+            Politics: number;
+            // Add other properties as needed
+          };
+        };
+      };
+    }
+
+    const response = await new Promise<AnalyzePostResponse>(
+      (resolve, reject) => {
+        chrome.runtime.sendMessage(
+          {
+            action: "analyzePost",
+            tweets: [
+              {
+                id: post.id,
+                text: post.content,
+              },
+            ],
+          },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve(response as AnalyzePostResponse);
+            }
+          },
+        );
+      },
+    );
 
     if (response && response.success && response.data) {
       const resData = response.data;
