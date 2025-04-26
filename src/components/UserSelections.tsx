@@ -9,7 +9,9 @@ import { userPreferences as defaultPreferences } from "../functions/content";
 
 const UserSelections = () => {
   // Local state to track user preferences
-  const [userPreferences, setPreferences] = useState<FilterSettings>(defaultPreferences!);
+  const [userPreferences, setPreferences] = useState<FilterSettings>(
+    defaultPreferences!,
+  );
 
   // Handler for toggling a preference
   const handleToggle = (key: keyof FilterSettings) => {
@@ -29,22 +31,39 @@ const UserSelections = () => {
             X Filter
           </Navbar.Brand>
           <Form className="ms-auto">
-            <Form.Check type="switch" id="navbar-switch" label="On / Off" />
+            <Form.Check
+              className="text-white"
+              type="switch"
+              id="body-switch-0"
+              label="Off / On"
+              checked={userPreferences.enabled}
+              onChange={() => handleToggle("enabled")}
+            />
           </Form>
         </Container>
       </Navbar>
 
-      <Container className="mt-4 h-100">
+      <Container className="mt-4 h-100 w-100">
         <Row>
-          <Col xs="auto">
+          <Col xs="auto" className=" w-100">
             <Form>
-              <Form.Check type="switch" id="body-switch-1" label="Political" />
+              <Form.Check
+                type="switch"
+                id="body-switch-1"
+                label="Political"
+                checked={userPreferences.political}
+                onChange={() => handleToggle("political")}
+                disabled={!userPreferences.enabled}
+              />
+
+              <div className="border-top my-3 w-100"></div>
+
               <Form.Check
                 type="switch"
                 id="body-switch-2"
                 label="Advertisements"
                 checked={userPreferences.ads}
-                onChange={() => handleToggle('ads')}
+                onChange={() => handleToggle("ads")}
                 disabled={!userPreferences.enabled}
               />
             </Form>
