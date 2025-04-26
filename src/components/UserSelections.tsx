@@ -9,14 +9,7 @@ import { userPreferences as defaultPreferences } from "../functions/content";
 
 const UserSelections = () => {
   // Local state to track user preferences
-  const [userPreferences, setPreferences] = useState<FilterSettings>(
-    defaultPreferences ?? {
-      enabled: true,
-      likes: [0, 100],
-      ads: true,
-      political: true,
-    }
-  );
+  const [userPreferences, setPreferences] = useState<FilterSettings>(defaultPreferences!);
 
   // Handler for toggling a preference
   const handleToggle = (key: keyof FilterSettings) => {
