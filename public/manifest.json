@@ -19,7 +19,6 @@
         "https://twitter.com/*"
       ],
       "js": [
-        "js/vendor.js",
         "js/content.js"
       ]
     }
