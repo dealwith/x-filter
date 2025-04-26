@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
 // Load environment variables
 dotenv.config();
@@ -30,10 +30,10 @@ interface ApiResponse {
 }
 
 // Configure OpenAI
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
+
 
 // Define topics
 const TOPICS = ["Politics", "Advertisment", "Technology"];
@@ -71,16 +71,16 @@ TWEETS:
 ${formattedTweets}`;
 
     // Call OpenAI API
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4.1-nano",
       messages: [{ role: "user", content: prompt }],
-      // @ts-ignore
+
       response_format: { type: "json_object" },
       temperature: 0.7,
     });
 
     // Parse the response
-    const content = completion.data.choices[0]?.message?.content;
+    const content = completion.choices[0]?.message?.content;
     if (!content) {
       throw new Error('No response from OpenAI');
     }

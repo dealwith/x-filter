@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Set up SSH
         run: |
@@ -20,6 +20,6 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_HOST }} '
             cd ${{ secrets.DEPLOY_PATH }} && 
-            docker compose pull && 
-            docker compose up -d
+            docker-compose pull && 
+            docker-compose up -d
           '
