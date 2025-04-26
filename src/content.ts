@@ -1,10 +1,8 @@
 // Set to store already processed tweet IDs to avoid duplicates
 const processedTweetIds = new Set<string>();
 
-// Keep track of the latest tweet we've found
 let latestTweetInfo: TweetInfo | null = null;
 
-// Interface for tweet information
 interface TweetInfo {
   id: string;
   author: string;
