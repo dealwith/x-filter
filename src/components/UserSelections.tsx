@@ -28,12 +28,12 @@ const UserSelections = () => {
               <Form.Check
                 type="switch"
                 id="body-switch-1"
-                label="Ads"
+                label="Political"
               />
               <Form.Check
                 type="switch"
                 id="body-switch-2"
-                label="Something Else"
+                label="Advertisements"
               />
             </Form>
           </Col>

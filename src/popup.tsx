@@ -20,38 +20,50 @@ const Popup = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const activeTab = tabs[0];
-
-      if (!activeTab || !activeTab.id) {
-        setError("Could not connect to the active tab");
-        setLoading(false);
-        return;
-      }
-
-      const url = activeTab.url || "";
-      if (!url.includes("twitter.com") && !url.includes("x.com")) {
-        setError("Please navigate to X.com or Twitter.com to use this extension");
-        setLoading(false);
-        return;
-      }
-
-      chrome.tabs.sendMessage(
-        activeTab.id,
-        { action: "getFirstTweet" },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            setError("Error communicating with the page: " + chrome.runtime.lastError.message);
-          } else if (response && response.tweetInfo) {
-            setFirstTweet(response.tweetInfo);
-          } else {
-            setError("No tweets found or content script not ready");
-          }
+    try {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (chrome.runtime.lastError) {
+          setError("Failed to query active tab: " + chrome.runtime.lastError.message);
           setLoading(false);
+          return;
         }
-      );
-    });
+  
+        const activeTab = tabs[0];
+  
+        if (!activeTab || !activeTab.id) {
+          setError("Could not connect to the active tab.");
+          setLoading(false);
+          return;
+        }
+  
+        const url = activeTab.url || "";
+        if (!url.includes("twitter.com") && !url.includes("x.com")) {
+          setError("Please navigate to X.com or Twitter.com to use this extension.");
+          setLoading(false);
+          return;
+        }
+  
+        chrome.tabs.sendMessage(
+          activeTab.id,
+          { action: "getFirstTweet" },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              setError("Error communicating with the page: " + chrome.runtime.lastError.message);
+            } else if (response && response.tweetInfo) {
+              setFirstTweet(response.tweetInfo);
+            } else {
+              setError("No tweets found or content script not ready.");
+            }
+            setLoading(false);
+          }
+        );
+      });
+    } catch (err: any) {
+      setError("Unexpected error: " + err.message);
+      setLoading(false);
+    }
   }, []);
+  
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "Unknown";
