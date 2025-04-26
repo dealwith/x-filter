@@ -15,34 +15,40 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
     return true;
   }
 
-  // Ask the backend what topic score the post has
-  let resData;
-
+  // Use the background script for API calls
   try {
-    const res = await fetch("https://xfilter.root.fipso.dev/analyze-tweets", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        tweets: [
-          {
-            id: post.id,
-            text: post.content,
-          },
-        ],
-      }),
+    const response = await new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(
+        {
+          action: "analyzePost",
+          tweets: [
+            {
+              id: post.id,
+              text: post.content,
+            },
+          ],
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve(response);
+          }
+        },
+      );
     });
-    resData = await res.json();
-  } catch (error) {
-    console.error("Error fetching or parsing response:", error);
-    return false;
-  }
 
-  if (filterSettings.political) {
-    if (resData.tweets[post.id].Political > 5) {
-      return true;
+    if (response && response.success && response.data) {
+      const resData = response.data;
+
+      if (filterSettings.political) {
+        if (resData.tweets[post.id].Politics > 5) {
+          return true;
+        }
+      }
     }
+  } catch (error) {
+    console.error("Error in message passing:", error);
   }
 
   return false;

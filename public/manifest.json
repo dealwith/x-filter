@@ -26,9 +26,12 @@
   "permissions": [
     "storage"
   ],
+  "background": {
+    "service_worker": "js/background.js"
+  },
   "host_permissions": [
     "https://x.com/*",
     "https://twitter.com/*",
-    "http://root.fipso.dev:3000/*"
+    "https://xfilter.root.fipso.dev/*"
   ]
 }
