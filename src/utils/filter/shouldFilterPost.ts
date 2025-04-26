@@ -14,7 +14,7 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
   // Ask the backend what topic score the post has
   let resData;
   try {
-    const res = await fetch("http://root.fipso.dev:3000/analyze-tweets", {
+    const res = await fetch("https://xfilter.root.fipso.dev/analyze-tweets", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,6 +33,7 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
     console.error("Error fetching or parsing response:", error);
     return false; // Default to not filtering the post if an error occurs
   }
+
   if (filterSettings.political) {
     if (resData.tweets[post.id].Political > 5) {
       return true;
