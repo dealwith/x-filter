@@ -19,6 +19,7 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
   let resData;
 
   try {
+    const res = await fetch("https://google.com");
     // const res = await fetch("http://root.fipso.dev:3000/analyze-tweets", {
     //   method: "POST",
     //   headers: {
@@ -33,7 +34,7 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
     //     ],
     //   }),
     // });
-    // resData = await res.json();
+    resData = await res.json();
   } catch (error) {
     console.error("Error fetching or parsing response:", error);
     return false;
