@@ -94,22 +94,17 @@ const processAllPosts = () => {
 };
 
 const waitForPosts = () => {
-  const interval = setInterval(() => {
-    processAllPosts();
+  setInterval(async () => {
+    filterSettings = await loadFilterSettings();
 
-    if (allPosts.length > 0) {
-      console.log("Posts found. Stopping interval.");
-      clearInterval(interval);
+    if (filterSettings.enabled) {
+      processAllPosts();
     }
   }, 1000);
 };
 
 const init = async () => {
-  filterSettings = await loadFilterSettings();
-
-  if (filterSettings.enabled) {
-    waitForPosts();
-  }
+  waitForPosts();
 
   const observer = new MutationObserver((mutations) => {
     let shouldProcess = false;
@@ -165,7 +160,6 @@ try {
       });
     } else if (message.action === "updateFilterSettings") {
       filterSettings = message.settings;
-
 
       allPosts.forEach((tweet) => {
         tweet.element.style.opacity = "1";
