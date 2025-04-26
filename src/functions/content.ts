@@ -1,23 +1,13 @@
-// Set to store already processed tweet IDs to avoid duplicates
+import { TweetInfo } from "./interfaces/ITweetInfo";
+
 const processedTweetIds = new Set<string>();
 
 let latestTweetInfo: TweetInfo | null = null;
-
-interface TweetInfo {
-  id: string;
-  author: string;
-  handle: string;
-  content: string;
-  timestamp: string;
-  likes: string;
-  retweets: string;
-}
 
 /**
  * Extract information from the first tweet on the page
  */
 const extractFirstTweet = (): TweetInfo | null => {
-  // Find all tweet articles
   const articles = document.querySelectorAll('article[data-testid="tweet"]');
 
   if (articles.length === 0) {
@@ -25,7 +15,6 @@ const extractFirstTweet = (): TweetInfo | null => {
     return null;
   }
 
-  // Get the first article
   const firstArticle = articles[0] as HTMLElement;
 
   // Extract tweet ID
