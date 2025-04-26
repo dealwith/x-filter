@@ -18,7 +18,8 @@
             "chrome",
             // Support for Jest
             // Run: `npm i --save-dev @types/jest`
-            "jest",
+            "jest"
         ]
-    }
+    },
+    "include": ["src/**/*"]
 }
