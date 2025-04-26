@@ -8,15 +8,18 @@ import { IFilterSettings } from "../interfaces/IFilterSettings";
 import { filterSettings as defaultPreferences } from "../functions/content";
 
 const UserSelections = () => {
-  const [userPreferences, setPreferences] = useState<IFilterSettings>(defaultPreferences!);
+  const [userPreferences, setPreferences] = useState<IFilterSettings>(
+    defaultPreferences!,
+  );
 
   const handleToggle = (key: keyof IFilterSettings) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    const updatedPreferences = {
+      ...userPreferences,
+      [key]: !userPreferences[key],
+    };
+    setPreferences(updatedPreferences);
 
-    console.log(userPreferences);
+    chrome.storage.sync.set({ filterSettings: updatedPreferences });
   };
 
   return (
