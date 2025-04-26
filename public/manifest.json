@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Extension TypeScript Starter",
-  "description": "Chrome Extension, TypeScript, Visual Studio Code",
+  "name": "X Filter",
+  "description": "Filter and log tweets from X.com (formerly Twitter)",
   "version": "1.0",
   "options_ui": {
     "page": "options.html"
@@ -15,10 +15,12 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://x.com/*",
+        "https://twitter.com/*"
       ],
       "js": [
-        "js/vendor.js"
+        "js/vendor.js",
+        "js/content.js"
       ]
     }
   ],
@@ -26,6 +28,7 @@
     "storage"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://x.com/*",
+    "https://twitter.com/*"
   ]
 }
