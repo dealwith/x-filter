@@ -4,9 +4,8 @@ import { logPostInfo } from '../utils/logPostInfo';
 import { IFilterSettings } from "../interfaces/IFilterSettings";
 import { applyFilter } from "../utils/filter/applyFilter";
 
-const processedTweetIds = new Set<string>();
+const processedPostIds = new Set<string>();
 let allPosts: IPostInfo[] = [];
-let latestPostInfo: IPostInfo | null = null;
 
 export let filterSettings: IFilterSettings = {
   enabled: true,
@@ -15,25 +14,22 @@ export let filterSettings: IFilterSettings = {
   political: true,
 };
 
-/**
- * Extract information from post on the page
- */
-const extractTweetInfo = (article: HTMLElement): IPostInfo | null => {
-  const tweetLink = article.querySelector('a[href*="/status/"]');
-  const tweetUrl = tweetLink?.getAttribute('href');
-  const idMatch = tweetUrl?.match(/\/status\/(\d+)/);
+const extractPostInfo = (article: HTMLElement): IPostInfo | null => {
+  const postLink = article.querySelector('a[href*="/status/"]');
+  const postUrl = postLink?.getAttribute('href');
+  const idMatch = postUrl?.match(/\/status\/(\d+)/);
 
   if (!idMatch || !idMatch[1]) {
     return null;
   }
 
-  const tweetId = idMatch[1];
+  const postId = idMatch[1];
 
-  if (processedTweetIds.has(tweetId)) {
+  if (processedPostIds.has(postId)) {
     return null;
   }
 
-  processedTweetIds.add(tweetId);
+  processedPostIds.add(postId);
 
   const authorElement = article.querySelector('[data-testid="User-Name"]');
   const authorName = authorElement?.querySelector('span')?.textContent || 'Unknown Author';
@@ -56,7 +52,7 @@ const extractTweetInfo = (article: HTMLElement): IPostInfo | null => {
   retweets = retweets.replace(/[^0-9]/g, '');
 
   return {
-    id: tweetId,
+    id: postId,
     author: authorName,
     handle: handleElement,
     content,
@@ -67,24 +63,21 @@ const extractTweetInfo = (article: HTMLElement): IPostInfo | null => {
   };
 };
 
-/**
- * Main function to process the first tweet
- */
 const processAllPosts = () => {
   const articles = document.querySelectorAll('article[data-testid="tweet"]');
 
   if (articles.length === 0) {
-    console.log('No tweets found on the page.');
+    console.log('No posts found on the page.');
     return;
   }
 
   articles.forEach((article) => {
     if (article instanceof HTMLElement) {
-      const tweetInfo = extractTweetInfo(article);
+      const postInfo = extractPostInfo(article);
 
-      if (tweetInfo) {
-        allPosts.push(tweetInfo);
-        logPostInfo(tweetInfo);
+      if (postInfo) {
+        allPosts.push(postInfo);
+        logPostInfo(postInfo);
       }
     }
   })
@@ -92,15 +85,12 @@ const processAllPosts = () => {
   chrome.runtime.sendMessage({
     action: "updatePosts",
     stats: {
-      totalProcessed: processedTweetIds.size,
+      totalProcessed: processedPostIds.size,
       totalFiltered: allPosts.filter(t => t.filtered).length
     }
   })
 };
 
-/**
- * Run when page loads and observe for dynamic content
- */
 const init = async () => {
   filterSettings = await loadFilterSettings();
 
@@ -140,11 +130,9 @@ const init = async () => {
   })
 };
 
-// Set up message listener for the popup
 try{
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "getFirstTweet" && allPosts.length > 0) {
-      // Send back the first tweet
       sendResponse({ tweetInfo: {
         id: allPosts[0].id,
         author: allPosts[0].author,
@@ -156,32 +144,25 @@ try{
       }});
     }
     else if (message.action === "getStats") {
-      // Send statistics
       sendResponse({
-        totalProcessed: processedTweetIds.size,
+        totalProcessed: processedPostIds.size,
         totalFiltered: allPosts.filter(t => t.filtered).length,
         filterEnabled: filterSettings.enabled
       });
     }
     else if (message.action === "updateFilterSettings") {
-      // Update settings
       filterSettings = message.settings;
 
-      // Save to storage
       chrome.storage.sync.set({ filterSettings });
 
-      // Reapply filters
       allPosts.forEach(tweet => {
-        // Reset the tweet's style
         tweet.element.style.opacity = '1';
 
-        // Remove existing filter badge if any
         const existingBadge = tweet.element.querySelector('div:contains("Filtered by X-Filter")');
         if (existingBadge) {
           existingBadge.remove();
         }
 
-        // Apply filter again with new settings
         applyFilter(tweet);
       });
 
