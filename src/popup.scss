@@ -16,8 +16,8 @@ $error-color: #e0245e;
 .popup-container {
   width: 400px;
   min-height: 200px;
-  max-height: 600px;
-  padding: 16px;
+  max-height: 800px;
+  overflow-y:scroll;
   background-color: $background-color;
   color: $text-color;
   overflow-y: auto;

@@ -1,8 +1,12 @@
+import { FilterSettings } from "../interfaces/IFilterSettings";
 import { ITweetInfo } from "../interfaces/ITweetInfo";
+import { loadFilterSettings } from "./filter";
 
 const processedTweetIds = new Set<string>();
 
 let latestTweetInfo: ITweetInfo | null = null;
+
+export let userPreferences: FilterSettings | null = null;
 
 /**
  * Extract information from the first tweet on the page
@@ -96,7 +100,10 @@ const processFirstTweet = () => {
 /**
  * Run when page loads and observe for dynamic content
  */
-const init = () => {
+const init = async () => {
+  // Initialize filter
+  userPreferences = await loadFilterSettings();
+
   // Try to process first tweet immediately
   setTimeout(() => {
     processFirstTweet();
@@ -131,18 +138,23 @@ const init = () => {
 };
 
 // Set up message listener for the popup
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "getFirstTweet") {
-    // If we don't have a tweet yet, try to get one
-    if (!latestTweetInfo) {
-      processFirstTweet();
+try{
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "getFirstTweet") {
+      // If we don't have a tweet yet, try to get one
+      if (!latestTweetInfo) {
+        processFirstTweet();
+      }
+  
+      // Send back whatever we have
+      sendResponse({ ITweetInfo: latestTweetInfo });
     }
+    return true; // Keep the message channel open for asynchronous response
+  });
+}catch{
+  console.error("No chrome runtime environment running")
+}
 
-    // Send back whatever we have
-    sendResponse({ ITweetInfo: latestTweetInfo });
-  }
-  return true; // Keep the message channel open for asynchronous response
-});
 
 // Initialize the extension
 init();

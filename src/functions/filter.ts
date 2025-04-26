@@ -1,4 +1,4 @@
-import { FilterSettings } from "./interfaces/IFilterSettings";
+import { FilterSettings } from "../interfaces/IFilterSettings";
 
 export const loadFilterSettings = (): Promise<FilterSettings> => {
 	return new Promise((resolve) => {
