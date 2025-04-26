@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    environment: test-env
     steps:
       - name: Set up SSH
         run: |
