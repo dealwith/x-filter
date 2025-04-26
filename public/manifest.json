@@ -28,6 +28,7 @@
   ],
   "host_permissions": [
     "https://x.com/*",
-    "https://twitter.com/*"
+    "https://twitter.com/*",
+    "http://root.fipso.dev:3000/*"
   ]
 }

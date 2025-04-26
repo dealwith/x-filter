@@ -11,6 +11,20 @@ const port = process.env.PORT || 3000;
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Add CORS middleware to allow any origin
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
 // Define interfaces
 interface Tweet {
   id: string;
@@ -42,13 +56,13 @@ const TOPICS = ["Politics", "Advertisment", "Technology"];
 app.post('/analyze-tweets', async (req, res) => {
   try {
     const tweets: Tweet[] = req.body.tweets;
-    
+
     if (!tweets || !Array.isArray(tweets) || tweets.length === 0) {
       return res.status(400).json({ error: 'Please provide an array of tweets' });
     }
 
     // Format tweets for the prompt
-    const formattedTweets = tweets.map(tweet => 
+    const formattedTweets = tweets.map(tweet =>
       `-- TWEET --:\n${tweet.id}:\n${tweet.text}\n-- END --`
     ).join('\n');
 
@@ -86,7 +100,7 @@ ${formattedTweets}`;
     }
 
     const result: ApiResponse = JSON.parse(content);
-    
+
     return res.json(result);
   } catch (error) {
     console.error('Error analyzing tweets:', error);
