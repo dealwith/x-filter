@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./popup.scss"
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "./popup.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
 import UserSelections from "./components/UserSelections";
 
 interface TweetInfo {
@@ -31,7 +31,9 @@ const Popup = () => {
 
       const url = activeTab.url || "";
       if (!url.includes("twitter.com") && !url.includes("x.com")) {
-        setError("Please navigate to X.com or Twitter.com to use this extension");
+        setError(
+          "Please navigate to X.com or Twitter.com to use this extension",
+        );
         setLoading(false);
         return;
       }
@@ -41,14 +43,17 @@ const Popup = () => {
         { action: "getFirstTweet" },
         (response) => {
           if (chrome.runtime.lastError) {
-            setError("Error communicating with the page: " + chrome.runtime.lastError.message);
+            setError(
+              "Error communicating with the page: " +
+                chrome.runtime.lastError.message,
+            );
           } else if (response && response.tweetInfo) {
             setFirstTweet(response.tweetInfo);
           } else {
             setError("No tweets found or content script not ready");
           }
           setLoading(false);
-        }
+        },
       );
     });
   }, []);
@@ -66,7 +71,7 @@ const Popup = () => {
 
   return (
     <div className="popup-container">
-      <UserSelections/>
+      <UserSelections />
     </div>
   );
 };
@@ -76,5 +81,5 @@ const root = createRoot(document.getElementById("root")!);
 root.render(
   <React.StrictMode>
     <Popup />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
