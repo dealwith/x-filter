@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./popup.scss";
+import "./popup.scss"
+import 'bootstrap/dist/css/bootstrap.min.css';
+import UserSelections from "./components/UserSelections";
 
 interface TweetInfo {
   id: string;
@@ -64,50 +66,7 @@ const Popup = () => {
 
   return (
     <div className="popup-container">
-      <h1>X Filter</h1>
-
-      {loading && (
-        <div className="loading">
-          <p>Loading first tweet...</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="error">
-          <p>{error}</p>
-        </div>
-      )}
-
-      {firstTweet && (
-        <div className="tweet-card">
-          <div className="tweet-header">
-            <div className="author-info">
-              <h2>{firstTweet.author}</h2>
-              <span className="handle">{firstTweet.handle}</span>
-            </div>
-            <span className="timestamp">{formatDate(firstTweet.timestamp)}</span>
-          </div>
-
-          <div className="tweet-content">
-            <p>{firstTweet.content}</p>
-          </div>
-
-          <div className="tweet-stats">
-            <span className="likes">❤️ {firstTweet.likes}</span>
-            <span className="retweets">🔄 {firstTweet.retweets}</span>
-          </div>
-
-          <div className="tweet-link">
-            <a
-              href={`https://x.com/i/status/${firstTweet.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View Tweet
-            </a>
-          </div>
-        </div>
-      )}
+      <UserSelections/>
     </div>
   );
 };
