@@ -11,6 +11,7 @@ export const loadFilterSettings = (): Promise<IFilterSettings> => {
           likes: [0, Infinity],
           ads: true,
           political: true,
+          elonmusk: true,
         };
 
         chrome.storage.sync.set({ filterSettings: defaultSettings });

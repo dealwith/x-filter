@@ -12,6 +12,7 @@ export let filterSettings: IFilterSettings = {
   likes: [0, 100],
   ads: true,
   political: true,
+  elonmusk: true,
 };
 
 const extractPostInfo = (article: HTMLElement): IPostInfo | null => {
@@ -106,6 +107,8 @@ const processAllPosts = () => {
         totalFiltered: allPosts.filter((t) => t.filtered).length,
       },
     });
+  } else {
+    console.log("X-Filter: No new posts found");
   }
 };
 
@@ -161,12 +164,6 @@ const observeTimeline = () => {
   };
 
   setupObserver();
-
-  // Periodically check for any posts that might have been missed
-  // This ensures we catch anything the observer might miss
-  setInterval(() => {
-    processAllPosts();
-  }, 5000);
 };
 
 const init = async () => {

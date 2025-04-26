@@ -11,6 +11,10 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
     return true;
   }
 
+  if (filterSettings.elonmusk && isElonMuskPost(post)) {
+    return true;
+  }
+
   // Ask the backend what topic score the post has
   let resData;
   try {
@@ -48,5 +52,17 @@ function isAdvertisement(post: IPostInfo): boolean {
   return (
     adKeywords.some((keyword) => content.includes(keyword)) ||
     post.element.querySelector('[data-testid="ad-badge"]') !== null
+  );
+}
+
+function isElonMuskPost(post: IPostInfo): boolean {
+  const content = post.content.toLowerCase();
+  const author = post.author.toLowerCase();
+
+  return (
+    content.includes("elon musk") ||
+    author.includes("elon musk") ||
+    post.handle.toLowerCase() === "@elonmusk" ||
+    post.content.includes("spacex")
   );
 }
