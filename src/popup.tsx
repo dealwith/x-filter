@@ -71,17 +71,6 @@ const Popup = () => {
     }
   }, []);
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "Unknown";
-
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString();
-    } catch (e) {
-      return dateString;
-    }
-  };
-
   return (
     <div className="popup-container">
       <UserSelections />

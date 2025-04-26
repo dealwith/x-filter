@@ -1,14 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { FilterSettings } from "../interfaces/IFilterSettings";
+import { userPreferences as defaultPreferences } from "../functions/content";
 
 const UserSelections = () => {
+  // Local state to track user preferences
+  const [userPreferences, setPreferences] = useState<FilterSettings>(
+    defaultPreferences ?? {
+      enabled: true,
+      likes: [0, 100],
+      ads: true,
+      political: true,
+    }
+  );
+
+  // Handler for toggling a preference
+  const handleToggle = (key: keyof FilterSettings) => {
+    setPreferences((prev) => ({
+      ...prev,
+      [key]: !prev[key], // flip boolean value
+    }));
+
+    console.log(userPreferences);
+  };
+
   return (
     <>
-      <Navbar bg="dark text-white" expand="lg">
+      <Navbar bg="dark" expand="lg">
         <Container>
           <Navbar.Brand className="text-white" href="#">
             X Filter
@@ -19,7 +41,7 @@ const UserSelections = () => {
         </Container>
       </Navbar>
 
-      <Container className="mt-4">
+      <Container className="mt-4 h-100">
         <Row>
           <Col xs="auto">
             <Form>
@@ -28,11 +50,17 @@ const UserSelections = () => {
                 type="switch"
                 id="body-switch-2"
                 label="Advertisements"
+                checked={userPreferences.ads}
+                onChange={() => handleToggle('ads')}
+                disabled={!userPreferences.enabled}
               />
             </Form>
           </Col>
         </Row>
       </Container>
+
+      {/* Debugging: show current preferences */}
+      <pre className="mt-3">{JSON.stringify(userPreferences, null, 2)}</pre>
     </>
   );
 };
