@@ -166,7 +166,6 @@ try {
     } else if (message.action === "updateFilterSettings") {
       filterSettings = message.settings;
 
-      chrome.storage.sync.set({ filterSettings });
 
       allPosts.forEach((tweet) => {
         tweet.element.style.opacity = "1";
