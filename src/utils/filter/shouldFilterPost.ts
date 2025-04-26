@@ -1,10 +1,17 @@
-import { IPostInfo } from "../../interfaces/IPostInfo";
-
 import { filterSettings } from "../../functions/content";
+import { IPostInfo } from "../../interfaces/IPostInfo";
+import { adKeywords } from "./adKeywords";
 
 export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
-  // Ask the backend what topic score the post has
+  if (!filterSettings.enabled) {
+    return false;
+  }
 
+  if (filterSettings.ads && isAdvertisement(post)) {
+    return true;
+  }
+
+  // Ask the backend what topic score the post has
   const res = await fetch("http://root.fipso.dev:3000/analyze-tweets", {
     method: "POST",
     headers: {
@@ -17,7 +24,7 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
           text: post.content,
         },
       ],
-    })
+    }),
   });
   const resData = await res.json();
 
@@ -28,4 +35,13 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
   }
 
   return false;
+};
+
+function isAdvertisement(post: IPostInfo): boolean {
+  const content = post.content.toLowerCase();
+
+  return (
+    adKeywords.some((keyword) => content.includes(keyword)) ||
+    post.element.querySelector('[data-testid="ad-badge"]') !== null
+  );
 }
