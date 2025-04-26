@@ -1,12 +1,12 @@
-import { FilterSettings } from "../interfaces/IFilterSettings";
+import { IFilterSettings } from "../interfaces/IFilterSettings";
 
-export const loadFilterSettings = (): Promise<FilterSettings> => {
+export const loadFilterSettings = (): Promise<IFilterSettings> => {
 	return new Promise((resolve) => {
 		chrome.storage.sync.get('filterSettings', (result) => {
 			if (result.filterSettings) {
 				resolve(result.filterSettings);
 			} else {
-				const defaultSettings: FilterSettings = {
+				const defaultSettings: IFilterSettings = {
 					enabled: true,
 					likes: [0, Infinity],
 					ads: true,

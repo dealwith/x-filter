@@ -4,20 +4,16 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { FilterSettings } from "../interfaces/IFilterSettings";
-import { userPreferences as defaultPreferences } from "../functions/content";
+import { IFilterSettings } from "../interfaces/IFilterSettings";
+import { filterSettings as defaultPreferences } from "../functions/content";
 
 const UserSelections = () => {
-  // Local state to track user preferences
-  const [userPreferences, setPreferences] = useState<FilterSettings>(
-    defaultPreferences!,
-  );
+  const [userPreferences, setPreferences] = useState<IFilterSettings>(defaultPreferences!);
 
-  // Handler for toggling a preference
-  const handleToggle = (key: keyof FilterSettings) => {
+  const handleToggle = (key: keyof IFilterSettings) => {
     setPreferences((prev) => ({
       ...prev,
-      [key]: !prev[key], // flip boolean value
+      [key]: !prev[key],
     }));
 
     console.log(userPreferences);

@@ -1,124 +1,106 @@
-import { FilterSettings } from "../interfaces/IFilterSettings";
-import { ITweetInfo } from "../interfaces/ITweetInfo";
 import { loadFilterSettings } from "./filter";
+import { IPostInfo } from "../interfaces/IPostInfo";
+import { logPostInfo } from '../utils/logPostInfo';
+import { IFilterSettings } from "../interfaces/IFilterSettings";
+import { applyFilter } from "../utils/filter/applyFilter";
 
-const processedTweetIds = new Set<string>();
+const processedPostIds = new Set<string>();
+let allPosts: IPostInfo[] = [];
 
-let latestTweetInfo: ITweetInfo | null = null;
-
-export let userPreferences: FilterSettings = {
+export let filterSettings: IFilterSettings = {
   enabled: true,
   likes: [0, 100],
   ads: true,
   political: true,
 };
 
-/**
- * Extract information from the first tweet on the page
- */
-const extractFirstTweet = (): ITweetInfo | null => {
-  const articles = document.querySelectorAll('article[data-testid="tweet"]');
-
-  if (articles.length === 0) {
-    console.log('No tweets found on page');
-    return null;
-  }
-
-  const firstArticle = articles[0] as HTMLElement;
-
-  // Extract tweet ID
-  const tweetLink = firstArticle.querySelector('a[href*="/status/"]');
-  const tweetUrl = tweetLink?.getAttribute('href');
-  const idMatch = tweetUrl?.match(/\/status\/(\d+)/);
+const extractPostInfo = (article: HTMLElement): IPostInfo | null => {
+  const postLink = article.querySelector('a[href*="/status/"]');
+  const postUrl = postLink?.getAttribute('href');
+  const idMatch = postUrl?.match(/\/status\/(\d+)/);
 
   if (!idMatch || !idMatch[1]) {
-    console.log('Could not extract tweet ID');
     return null;
   }
 
-  const tweetId = idMatch[1];
+  const postId = idMatch[1];
 
-  // Check if we've already processed this tweet
-  if (processedTweetIds.has(tweetId)) {
+  if (processedPostIds.has(postId)) {
     return null;
   }
 
-  // Mark as processed
-  processedTweetIds.add(tweetId);
+  processedPostIds.add(postId);
 
-  // Extract author information
-  const authorElement = firstArticle.querySelector('[data-testid="User-Name"]');
+  const authorElement = article.querySelector('[data-testid="User-Name"]');
   const authorName = authorElement?.querySelector('span')?.textContent || 'Unknown Author';
   const handleElement = authorElement?.querySelector('span a span')?.textContent || '@unknown';
 
-  // Extract tweet content
-  const contentElement = firstArticle.querySelector('[data-testid="tweetText"]');
+  const contentElement = article.querySelector('[data-testid="tweetText"]');
   const content = contentElement?.textContent || '';
 
-  // Extract timestamp
-  const timestampElement = firstArticle.querySelector('time');
+  const timestampElement = article.querySelector('time');
   const timestamp = timestampElement?.getAttribute('datetime') || '';
 
-  // Extract engagement stats
-  const likesElement = firstArticle.querySelector('[data-testid="like"]');
-  const likes = likesElement?.textContent || '0';
+  const likesElement = article.querySelector('[data-testid="like"]');
+  let likes = likesElement?.textContent || '0';
 
-  const retweetsElement = firstArticle.querySelector('[data-testid="retweet"]');
-  const retweets = retweetsElement?.textContent || '0';
+  likes = likes.replace(/[^0-9]/g, '');
+
+  const retweetsElement = article.querySelector('[data-testid="retweet"]');
+  let retweets = retweetsElement?.textContent || '0';
+
+  retweets = retweets.replace(/[^0-9]/g, '');
 
   return {
-    id: tweetId,
+    id: postId,
     author: authorName,
     handle: handleElement,
     content,
     timestamp,
     likes,
-    retweets
+    retweets,
+    element: article
   };
 };
 
-/**
- * Log tweet information to console
- */
-const logTweetInfo = (ITweetInfo: ITweetInfo) => {
-  console.log('======= X-FILTER: FIRST TWEET =======');
-  console.log(`ID: ${ITweetInfo.id}`);
-  console.log(`Author: ${ITweetInfo.author} (${ITweetInfo.handle})`);
-  console.log(`Posted: ${ITweetInfo.timestamp}`);
-  console.log(`Content: ${ITweetInfo.content}`);
-  console.log(`Likes: ${ITweetInfo.likes}, Retweets: ${ITweetInfo.retweets}`);
-  console.log('====================================');
-};
+const processAllPosts = () => {
+  const articles = document.querySelectorAll('article[data-testid="tweet"]');
 
-/**
- * Main function to process the first tweet
- */
-const processFirstTweet = () => {
-  const ITweetInfo = extractFirstTweet();
-
-  if (ITweetInfo) {
-    logTweetInfo(ITweetInfo);
-    latestTweetInfo = ITweetInfo; // Save for later retrieval
+  if (articles.length === 0) {
+    console.log('No posts found on the page.');
+    return;
   }
+
+  articles.forEach((article) => {
+    if (article instanceof HTMLElement) {
+      const postInfo = extractPostInfo(article);
+
+      if (postInfo) {
+        allPosts.push(postInfo);
+        logPostInfo(postInfo);
+      }
+    }
+  })
+
+  chrome.runtime.sendMessage({
+    action: "updatePosts",
+    stats: {
+      totalProcessed: processedPostIds.size,
+      totalFiltered: allPosts.filter(t => t.filtered).length
+    }
+  })
 };
 
-/**
- * Run when page loads and observe for dynamic content
- */
 const init = async () => {
-  // Initialize filter
-  userPreferences = await loadFilterSettings();
+  filterSettings = await loadFilterSettings();
 
-  // Try to process first tweet immediately
   setTimeout(() => {
-    processFirstTweet();
-  }, 2000); // Small delay to ensure content is loaded
+    processAllPosts();
+  }, 2000);
 
-  // Set up observer for dynamically loaded content
   const observer = new MutationObserver((mutations) => {
     let shouldProcess = false;
 
-    // Check if relevant elements were added
     mutations.forEach(mutation => {
       if (mutation.addedNodes.length > 0) {
         shouldProcess = true;
@@ -126,12 +108,12 @@ const init = async () => {
     });
 
     if (shouldProcess) {
-      processFirstTweet();
+      processAllPosts();
     }
   });
 
-  // Start observing the timeline
   const timeline = document.querySelector('main');
+
   if (timeline) {
     observer.observe(timeline, {
       childList: true,
@@ -140,26 +122,57 @@ const init = async () => {
 
     console.log('X-Filter: Observing timeline for new tweets');
   }
+
+  chrome.storage.onChanged.addListener((changes) => {
+    if(changes.filterSettings) {
+      filterSettings = changes.filterSettings.newValue;
+    }
+  })
 };
 
-// Set up message listener for the popup
 try{
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "getFirstTweet") {
-      // If we don't have a tweet yet, try to get one
-      if (!latestTweetInfo) {
-        processFirstTweet();
-      }
-  
-      // Send back whatever we have
-      sendResponse({ ITweetInfo: latestTweetInfo });
+    if (message.action === "getFirstTweet" && allPosts.length > 0) {
+      sendResponse({ tweetInfo: {
+        id: allPosts[0].id,
+        author: allPosts[0].author,
+        handle: allPosts[0].handle,
+        content: allPosts[0].content,
+        timestamp: allPosts[0].timestamp,
+        likes: allPosts[0].likes,
+        retweets: allPosts[0].retweets
+      }});
     }
+    else if (message.action === "getStats") {
+      sendResponse({
+        totalProcessed: processedPostIds.size,
+        totalFiltered: allPosts.filter(t => t.filtered).length,
+        filterEnabled: filterSettings.enabled
+      });
+    }
+    else if (message.action === "updateFilterSettings") {
+      filterSettings = message.settings;
+
+      chrome.storage.sync.set({ filterSettings });
+
+      allPosts.forEach(tweet => {
+        tweet.element.style.opacity = '1';
+
+        const existingBadge = tweet.element.querySelector('div:contains("Filtered by X-Filter")');
+        if (existingBadge) {
+          existingBadge.remove();
+        }
+
+        applyFilter(tweet);
+      });
+
+      sendResponse({ success: true });
+    }
+
     return true; // Keep the message channel open for asynchronous response
   });
 }catch{
   console.error("No chrome runtime environment running")
 }
 
-
-// Initialize the extension
 init();
