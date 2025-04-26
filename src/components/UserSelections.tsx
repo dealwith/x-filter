@@ -10,7 +10,7 @@ const UserSelections = () => {
     <>
       <Navbar bg="dark text-white" expand="lg">
         <Container>
-          <Navbar.Brand  className="text-white" href="#">X Filter</Navbar.Brand>
+          <Navbar.Brand className="text-white" href="#">X Filter</Navbar.Brand>
           <Form className="ms-auto">
             <Form.Check
               type="switch"
