@@ -25,6 +25,7 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_HOST }} '
             cd ${{ secrets.DEPLOY_PATH }} && 
-            TAG=${{ github.event.inputs.tag }} docker-compose pull && 
+            export TAG=${{ github.event.inputs.tag }} && 
+            docker-compose pull && 
             docker-compose up -d
           '
