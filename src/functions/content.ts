@@ -6,7 +6,12 @@ const processedTweetIds = new Set<string>();
 
 let latestTweetInfo: ITweetInfo | null = null;
 
-export let userPreferences: FilterSettings | null = null;
+export let userPreferences: FilterSettings = {
+  enabled: true,
+  likes: [0, 100],
+  ads: true,
+  political: true,
+};
 
 /**
  * Extract information from the first tweet on the page
