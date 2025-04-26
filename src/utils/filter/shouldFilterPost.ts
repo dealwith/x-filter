@@ -19,21 +19,20 @@ export const shouldFilterPost = async (post: IPostInfo): Promise<boolean> => {
   let resData;
 
   try {
-    const res = await fetch("https://google.com");
-    // const res = await fetch("http://root.fipso.dev:3000/analyze-tweets", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     tweets: [
-    //       {
-    //         id: post.id,
-    //         text: post.content,
-    //       },
-    //     ],
-    //   }),
-    // });
+    const res = await fetch("https://xfilter.root.fipso.dev/analyze-tweets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tweets: [
+          {
+            id: post.id,
+            text: post.content,
+          },
+        ],
+      }),
+    });
     resData = await res.json();
   } catch (error) {
     console.error("Error fetching or parsing response:", error);
